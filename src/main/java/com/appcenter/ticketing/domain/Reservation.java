@@ -1,7 +1,6 @@
-package com.appcenter.ticketing.reservation;
+package com.appcenter.ticketing.domain;
 
 
-import com.appcenter.ticketing.ticket.Ticket;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;

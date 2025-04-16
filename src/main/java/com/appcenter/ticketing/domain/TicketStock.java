@@ -1,6 +1,5 @@
-package com.appcenter.ticketing.ticketstock;
+package com.appcenter.ticketing.domain;
 
-import com.appcenter.ticketing.ticket.Ticket;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -18,6 +17,7 @@ public class TicketStock {
     @Column(name = "ticket_stock_id")
     private Long id;
 
+    @Getter
     @Column(name = "ticket_quantity")
     private Long quantity;
 
@@ -33,5 +33,12 @@ public class TicketStock {
 
     public static TicketStock of(Long quantity, Ticket ticket){
         return TicketStock.builder().quantity(quantity).ticket(ticket).build();
+    }
+
+    public void decreaseQuantity(){
+        if(this.quantity  <= 0){
+            throw new RuntimeException("Bad quantity");
+        }
+        this.quantity -= 1;
     }
 }

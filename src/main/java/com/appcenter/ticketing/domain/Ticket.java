@@ -1,4 +1,4 @@
-package com.appcenter.ticketing.ticket;
+package com.appcenter.ticketing.domain;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
