@@ -1,4 +1,4 @@
-package com.appcenter.ticketing;
+package com.appcenter.wnt;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
