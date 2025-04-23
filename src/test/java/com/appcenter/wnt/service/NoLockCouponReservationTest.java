@@ -8,6 +8,8 @@ import com.appcenter.wnt.repository.CouponReservationRepository;
 import com.appcenter.wnt.repository.CouponRepository;
 import com.appcenter.wnt.repository.CouponStockRepository;
 import com.appcenter.wnt.repository.UserRepository;
+import com.appcenter.wnt.service.strategy.CouponReserveStrategyManager;
+import com.appcenter.wnt.service.type.LockType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,7 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Slf4j
-public class CouponReservationTest {
+public class NoLockCouponReservationTest {
 
     @Autowired
     private CouponRepository couponRepository;
@@ -36,7 +38,7 @@ public class CouponReservationTest {
     private CouponReservationRepository reservationRepository;
 
     @Autowired
-    private CouponReservationService couponReservationService;
+    private CouponReserveStrategyManager couponReserveStrategyManager;
 
     @Autowired
     private CouponStockRepository couponStockRepository;
@@ -45,14 +47,13 @@ public class CouponReservationTest {
     private UserRepository userRepository;
 
     private Coupon coupon;
-    private CouponStock couponStock;
     private List<User> users;
 
     @BeforeEach
     void setUp() {
         coupon = couponRepository.saveAndFlush(Coupon.of(CouponType.THIRTY_PERCENT)); // enum 예시
 
-        couponStock = couponStockRepository.saveAndFlush(CouponStock.of(100L, coupon));
+        couponStockRepository.saveAndFlush(CouponStock.of(100L, coupon));
 
         users = IntStream.rangeClosed(1, 100)
                 .mapToObj(i -> userRepository.saveAndFlush(User.of("user" + i)))
@@ -68,7 +69,7 @@ public class CouponReservationTest {
     }
 
     /**
-     ** 쿠폰 예매 100건은 성공했지만 티켓 재고 필드가 꼬인 상황 -> 정합성 깨짐
+     ** 쿠폰 예매 100건은 성공했지만 쿠폰 재고 필드가 꼬인 상황 -> 정합성 깨짐
      **/
     @Test
     public void 요청1000건_중_100개만_허용_테스트() throws InterruptedException {
@@ -76,14 +77,13 @@ public class CouponReservationTest {
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
-        Coupon coupon = couponRepository.findAll().getFirst();
         Long couponId = coupon.getId();
-        List<User> users = userRepository.findAll();
 
+        LockType lockType = LockType.NONE;
         for (User user : users) {
             executorService.submit(() -> {
                 try {
-                    couponReservationService.reserveCoupon(user.getId(), couponId);
+                    couponReserveStrategyManager.reserveCoupon(lockType, user.getId(), couponId);
                 } catch (Exception e) {
                     log.info("쿠폰 예매중 에러 발생!");
                 } finally {
@@ -94,8 +94,9 @@ public class CouponReservationTest {
         latch.await();
 
         CouponStock couponStock = couponStockRepository.findByCoupon(coupon).orElseThrow(()-> new RuntimeException("쿠폰 재고 존재 x"));
+        log.info("=== 남은 재고 수: {} ===" ,couponStock.getQuantity());
 
         // 모든 예매가 수행 되었으면 티켓 재고는 0개가 남아야 한다.
-        assertEquals(0L, couponStock.getQuantity());
+        assertEquals(0L, couponStock.getQuantity(), "티켓 재고는 0이 되어야한다.");
     }
 }

@@ -8,6 +8,7 @@ import com.appcenter.wnt.dto.request.NailReserveRequest;
 import com.appcenter.wnt.repository.NailReservationRepository;
 import com.appcenter.wnt.repository.StoreRepository;
 import com.appcenter.wnt.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
+@Slf4j
 class NailReservationTest {
 
     @Autowired
@@ -126,8 +128,8 @@ class NailReservationTest {
 
         // 실제 저장된 예약 개수 확인
         long count = reservationRepository.count();
-        System.out.println("=== 저장된 예약 수: " + count + " ===");
 
+        log.info("=== 저장된 예약 수: {} ===",count);
         assertEquals(1L, count, "단 1건의 예약만 저장되어야 합니다.");
     }
 }

@@ -21,6 +21,9 @@ public class CouponStock {
     @Column(name = "coupon_quantity")
     private Long quantity;
 
+    @Version
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "coupon_id")
     private Coupon coupon;
