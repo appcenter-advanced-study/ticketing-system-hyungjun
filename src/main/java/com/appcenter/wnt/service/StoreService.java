@@ -25,7 +25,7 @@ public class StoreService {
             throw new RuntimeException("이미 존재하는 가게입니다.");
         });
 
-        Store store= Store.of(user, name);
+        Store store = storeRepository.save(Store.of(user, name));
         return StoreResponse.from(store);
     }
 

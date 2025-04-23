@@ -1,10 +1,7 @@
 package com.appcenter.wnt.domain;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -16,15 +13,16 @@ public class User {
     @Column(name = "user_id")
     private Long id;
 
-    @Column(name = "user_name")
-    private String name;
+    @Column(nullable = false, unique = true)
+    @Embedded
+    private Nickname nickname;
 
     @Builder
-    private User(String name) {
-        this.name = name;
+    private User(@NonNull String nickname) {
+        this.nickname = new Nickname(nickname);
     }
 
-    public static User of(String name) {
-        return User.builder().name(name).build();
+    public static User of(String nickname) {
+        return User.builder().nickname(nickname).build();
     }
 }

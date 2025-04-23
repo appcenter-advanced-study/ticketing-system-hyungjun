@@ -14,6 +14,7 @@ public record NailReserveResponse(
 ) {
     public static NailReserveResponse from(NailReservation nailReservation) {
         return NailReserveResponse.builder()
+                .nailReservationId(nailReservation.getId())
                 .userId(nailReservation.getUser().getId())
                 .storeId(nailReservation.getStore().getId())
                 .nailType(nailReservation.getNailCategory().name())
