@@ -1,4 +1,4 @@
-package com.appcenter.wnt.service.strategy;
+package com.appcenter.wnt.service.strategy.couponstock;
 
 import com.appcenter.wnt.dto.response.CouponReserveDetailResponse;
 import com.appcenter.wnt.service.type.LockType;
@@ -15,17 +15,19 @@ public class CouponReserveStrategyManager {
             @Qualifier("none") CouponReserveStrategy noLock,
             @Qualifier("pessimistic") CouponReserveStrategy pessimistic,
             @Qualifier("optimistic") CouponReserveStrategy optimistic,
-            @Qualifier("named") CouponReserveStrategy named
+            @Qualifier("named") CouponReserveStrategy named,
+            @Qualifier("redis") CouponReserveStrategy redis
     ) {
         this.strategyMap = Map.of(
                 LockType.NONE, noLock,
                 LockType.PESSIMISTIC, pessimistic,
                 LockType.OPTIMISTIC, optimistic,
-                LockType.NAMED, named
+                LockType.NAMED, named,
+                LockType.REDIS, redis
         );
     }
 
-    public CouponReserveDetailResponse reserveCoupon(LockType lockType, Long userId, Long couponId) {
+    public CouponReserveDetailResponse reserveCoupon(LockType lockType, Long userId, Long couponId) throws InterruptedException {
         return strategyMap.get(lockType).reserveCoupon(userId, couponId);
     }
 }

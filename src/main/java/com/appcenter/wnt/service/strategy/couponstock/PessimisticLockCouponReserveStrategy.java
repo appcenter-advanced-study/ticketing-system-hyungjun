@@ -1,38 +1,41 @@
-package com.appcenter.wnt.service.strategy;
+package com.appcenter.wnt.service.strategy.couponstock;
 
 import com.appcenter.wnt.domain.Coupon;
+import com.appcenter.wnt.domain.CouponReservation;
+import com.appcenter.wnt.domain.CouponStock;
 import com.appcenter.wnt.domain.User;
 import com.appcenter.wnt.dto.response.CouponReserveDetailResponse;
 import com.appcenter.wnt.repository.CouponRepository;
 import com.appcenter.wnt.repository.CouponReservationRepository;
+import com.appcenter.wnt.repository.CouponStockRepository;
 import com.appcenter.wnt.repository.UserRepository;
-import com.appcenter.wnt.service.facade.OptimisticCouponProcessor;
-import com.appcenter.wnt.service.facade.OptimisticLockRetryExecutor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Qualifier("optimistic")
-public class OptimisticLockCouponReserveStrategy implements CouponReserveStrategy {
+@Qualifier("pessimistic")
+public class PessimisticLockCouponReserveStrategy implements CouponReserveStrategy {
+    private final CouponStockRepository couponStockRepository;
     private final CouponRepository couponRepository;
     private final CouponReservationRepository reservationRepository;
     private final UserRepository userRepository;
-    private final OptimisticLockRetryExecutor retryExecutor;
-    private final OptimisticCouponProcessor processor;
-
 
     @Override
+    @Transactional
     public CouponReserveDetailResponse reserveCoupon(Long userId, Long couponId) {
         User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("유저가 존재하지 않습니다."));
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(()-> new RuntimeException("쿠폰이 존재하지 않습니다."));
+        // 비관적 락 적용
+        CouponStock couponStock = couponStockRepository.findByIdWithPessimisticLock(coupon.getId()).orElseThrow(()-> new RuntimeException("쿠폰 재고가 존재하지 않습니다."));
         reservationRepository.findByUserIdAndCouponId(userId,couponId).ifPresent(cr ->{
-            throw new RuntimeException("이미 예매한 쿠폰입니다.");
+            throw new RuntimeException("이미 존재하는 쿠폰입니다.");
         });
+        couponStock.decreaseQuantity();
+        CouponReservation couponReservation = reservationRepository.save(CouponReservation.of(user.getId(), coupon));
 
-        // CouponStock 부분 재시도 실행 실행
-        return retryExecutor.execute(() -> processor.tryReserve(user, coupon));
+        return CouponReserveDetailResponse.of(coupon.getId(),user.getId(), couponReservation.getId(), coupon.getType().name(), couponStock.getQuantity());
     }
 }

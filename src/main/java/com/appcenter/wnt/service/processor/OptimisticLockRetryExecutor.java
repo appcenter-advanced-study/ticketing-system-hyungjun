@@ -1,4 +1,4 @@
-package com.appcenter.wnt.service.facade;
+package com.appcenter.wnt.service.processor;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;

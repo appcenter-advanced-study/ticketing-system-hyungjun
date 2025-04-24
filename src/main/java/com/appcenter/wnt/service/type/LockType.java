@@ -4,5 +4,6 @@ public enum LockType {
     NONE,
     PESSIMISTIC,
     OPTIMISTIC,
-    NAMED
+    NAMED,
+    REDIS
 }

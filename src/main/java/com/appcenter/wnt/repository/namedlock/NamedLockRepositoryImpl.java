@@ -1,6 +1,6 @@
 package com.appcenter.wnt.repository.namedlock;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
@@ -12,7 +12,6 @@ import java.sql.SQLException;
 import java.util.function.Supplier;
 
 @Repository
-@RequiredArgsConstructor
 public class NamedLockRepositoryImpl implements NamedLockRepository {
 
     private static final String GET_LOCK = "SELECT GET_LOCK(?, ?)";
@@ -20,6 +19,10 @@ public class NamedLockRepositoryImpl implements NamedLockRepository {
     private static final String EXCEPTION_MESSAGE = "LOCK을 수행하는 중에 오류가 발생하였습니다.";
 
     private final DataSource dataSource;
+
+    public NamedLockRepositoryImpl(@Qualifier("namedLockDataSource") DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
 
     @Override
     public <T> T executeWithLock(String key, Supplier<T> supplier) {
@@ -38,7 +41,7 @@ public class NamedLockRepositoryImpl implements NamedLockRepository {
     private void getLock(Connection connection, String userLockName) throws SQLException {
         try (PreparedStatement stmt = connection.prepareStatement(GET_LOCK)) {
             stmt.setString(1, userLockName);
-            stmt.setInt(2, 3);
+            stmt.setInt(2, 20);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {

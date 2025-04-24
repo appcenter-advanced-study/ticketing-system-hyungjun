@@ -1,4 +1,4 @@
-package com.appcenter.wnt.service.facade;
+package com.appcenter.wnt.service.processor;
 
 
 import com.appcenter.wnt.domain.Coupon;
@@ -15,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Component
 @RequiredArgsConstructor
-public class NamedLockProcessor {
+public class CouponStockCommandProcessor {
 
     private final CouponStockRepository couponStockRepository;
     private final CouponReservationRepository reservationRepository;

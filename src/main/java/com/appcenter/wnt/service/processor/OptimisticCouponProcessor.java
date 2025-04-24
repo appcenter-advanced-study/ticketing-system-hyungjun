@@ -1,4 +1,4 @@
-package com.appcenter.wnt.service.facade;
+package com.appcenter.wnt.service.processor;
 
 import com.appcenter.wnt.domain.Coupon;
 import com.appcenter.wnt.domain.CouponReservation;

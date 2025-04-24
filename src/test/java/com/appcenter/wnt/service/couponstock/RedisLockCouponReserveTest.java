@@ -1,4 +1,4 @@
-package com.appcenter.wnt.service;
+package com.appcenter.wnt.service.couponstock;
 
 import com.appcenter.wnt.domain.Coupon;
 import com.appcenter.wnt.domain.CouponStock;
@@ -8,7 +8,7 @@ import com.appcenter.wnt.repository.CouponRepository;
 import com.appcenter.wnt.repository.CouponReservationRepository;
 import com.appcenter.wnt.repository.CouponStockRepository;
 import com.appcenter.wnt.repository.UserRepository;
-import com.appcenter.wnt.service.strategy.CouponReserveStrategyManager;
+import com.appcenter.wnt.service.strategy.couponstock.CouponReserveStrategyManager;
 import com.appcenter.wnt.service.type.LockType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
@@ -26,9 +26,10 @@ import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+
 @SpringBootTest
 @Slf4j
-public class OptimisticLockCouponReserveTest {
+public class RedisLockCouponReserveTest {
     @Autowired
     private CouponRepository couponRepository;
 
@@ -67,17 +68,17 @@ public class OptimisticLockCouponReserveTest {
     }
 
     /**
-     ** 쿠폰 예매 100건을 낙관적 락으로 동시성 문제 해결
+     ** 쿠폰 예매 100건을 레디스 락으로 동시성 문제 해결
      **/
     @Test
     public void 요청100건_중_재고_테스트() throws InterruptedException {
         int threadCount = 100;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
         Long couponId = coupon.getId();
 
-        LockType lockType = LockType.OPTIMISTIC;
+        LockType lockType = LockType.REDIS;
         for (User user : users) {
             executorService.submit(() -> {
                 try {

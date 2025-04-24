@@ -1,17 +1,14 @@
-package com.appcenter.wnt.service.strategy;
+package com.appcenter.wnt.service.strategy.couponstock;
 
 
 import com.appcenter.wnt.domain.Coupon;
-import com.appcenter.wnt.domain.CouponReservation;
-import com.appcenter.wnt.domain.CouponStock;
 import com.appcenter.wnt.domain.User;
 import com.appcenter.wnt.dto.response.CouponReserveDetailResponse;
 import com.appcenter.wnt.repository.CouponRepository;
 import com.appcenter.wnt.repository.CouponReservationRepository;
-import com.appcenter.wnt.repository.CouponStockRepository;
 import com.appcenter.wnt.repository.UserRepository;
 import com.appcenter.wnt.repository.namedlock.NamedLockRepository;
-import com.appcenter.wnt.service.facade.NamedLockProcessor;
+import com.appcenter.wnt.service.processor.CouponStockCommandProcessor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,7 @@ public class NamedLockCouponReserveStrategy implements CouponReserveStrategy {
     private final CouponReservationRepository reservationRepository;
     private final UserRepository userRepository;
     private final NamedLockRepository namedLockRepository;
-    private final NamedLockProcessor namedLockProcessor;
+    private final CouponStockCommandProcessor namedLockProcessor;
 
     @Override
     public CouponReserveDetailResponse reserveCoupon(Long userId, Long couponId) {

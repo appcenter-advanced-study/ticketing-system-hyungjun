@@ -1,4 +1,4 @@
-package com.appcenter.wnt.service.strategy;
+package com.appcenter.wnt.service.strategy.couponstock;
 
 import com.appcenter.wnt.domain.Coupon;
 import com.appcenter.wnt.domain.CouponReservation;

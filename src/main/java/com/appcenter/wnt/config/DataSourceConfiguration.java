@@ -23,7 +23,7 @@ public class DataSourceConfiguration {
         return new DataSourceProperties();
     }
 
-    @Bean
+    @Bean(name = "mainDataSource")
     @Primary
     public DataSource dataSource(DataSourceProperties dataSourceProperties) {
         return dataSourceProperties

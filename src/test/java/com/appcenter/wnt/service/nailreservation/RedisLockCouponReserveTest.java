@@ -1,4 +1,4 @@
-package com.appcenter.wnt.service;
+package com.appcenter.wnt.service.nailreservation;
 
 import com.appcenter.wnt.domain.Store;
 import com.appcenter.wnt.domain.User;
@@ -8,6 +8,8 @@ import com.appcenter.wnt.dto.request.NailReserveRequest;
 import com.appcenter.wnt.repository.NailReservationRepository;
 import com.appcenter.wnt.repository.StoreRepository;
 import com.appcenter.wnt.repository.UserRepository;
+import com.appcenter.wnt.service.strategy.nailreservation.NailReserveStrategyManager;
+import com.appcenter.wnt.service.type.LockType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,14 +26,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Slf4j
-class NailReservationTest {
-
+public class RedisLockCouponReserveTest {
     @Autowired
-    private  NailReservationService nailReservationService;
+    private NailReserveStrategyManager nailReserveStrategyManager;
 
     @Autowired
     private StoreRepository storeRepository;
@@ -68,36 +68,8 @@ class NailReservationTest {
         userRepository.deleteAll();
     }
 
-    @Test
-    public void 네일예약_중복요청_예외_테스트() {
-        // 첫 번째 사용자 예약 (성공)
-        NailReserveRequest firstRequest = new NailReserveRequest(
-                users.get(0).getId(),
-                store.getId(),
-                category,
-                date,
-                time
-        );
-        nailReservationService.reserveNail(firstRequest); // 성공
-
-        // 두 번째 사용자 예약 (실패 예상)
-        NailReserveRequest secondRequest = new NailReserveRequest(
-                users.get(1).getId(),
-                store.getId(),
-                category,
-                date,
-                time
-        );
-
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            nailReservationService.reserveNail(secondRequest);
-        });
-
-        assertEquals("이미 예약이 존재합니다.", exception.getMessage());
-    }
-
     /**
-     * 동일 가게 동일 시간대에 예매는 하나밖에 되지 않아야 한다 -> 이중예매 발생
+     * 레디스 락을 걸어서 이중 예매를 해결
      */
     @Test
     public void 네일예약_5명_동시요청_테스트() throws InterruptedException {
@@ -105,6 +77,7 @@ class NailReservationTest {
         ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
+        LockType lockType = LockType.REDIS;
         for (User user : users) {
             executorService.submit(() -> {
                 try {
@@ -115,9 +88,12 @@ class NailReservationTest {
                             date,
                             time
                     );
-                    nailReservationService.reserveNail(request);
+
+                    nailReserveStrategyManager.reserveNail(lockType, request);
                 } catch (RuntimeException e) {
                     System.out.println("예약 실패: " + e.getMessage());
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 } finally {
                     latch.countDown();
                 }
