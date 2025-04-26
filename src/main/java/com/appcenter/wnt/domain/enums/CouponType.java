@@ -1,5 +1,8 @@
 package com.appcenter.wnt.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum CouponType {
     TEN_PERCENT(10, "10% 할인 쿠폰"),
     THIRTY_PERCENT(30, "30% 할인 쿠폰"),
@@ -12,17 +15,5 @@ public enum CouponType {
     CouponType(int discountRate, String description) {
         this.discountRate = discountRate;
         this.description = description;
-    }
-
-    public int getDiscountRate() {
-        return discountRate;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public boolean isFreeCoupon() {
-        return discountRate == 100;
     }
 }

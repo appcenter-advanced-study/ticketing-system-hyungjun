@@ -1,5 +1,8 @@
 package com.appcenter.wnt.domain.enums;
 
+import lombok.Getter;
+
+@Getter
 public enum NailCategory {
     CARE("손케어", 20000),
     ART("아트", 50000),
@@ -14,11 +17,4 @@ public enum NailCategory {
         this.price = price;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public long getPrice() {
-        return price;
-    }
 }

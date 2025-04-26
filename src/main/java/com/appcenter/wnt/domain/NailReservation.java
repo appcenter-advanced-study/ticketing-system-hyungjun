@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name="nail_reservation",
+@Table(name="nail_reservations",
         uniqueConstraints = @UniqueConstraint(name="uq_store_date_time",
                 columnNames = {"store_id", "nail_reservation_date","nail_reservation_time"})) // jpa를 통해 unique를 걸어줄 수 있다.
 public class NailReservation {

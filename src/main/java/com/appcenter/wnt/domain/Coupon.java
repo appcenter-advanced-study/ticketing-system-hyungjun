@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name="coupon")
+@Table(name="coupons")
 public class Coupon {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name="coupon_reservation")
+@Table(name="coupon_reservations")
 public class CouponReservation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

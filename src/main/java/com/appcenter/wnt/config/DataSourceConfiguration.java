@@ -18,7 +18,7 @@ public class DataSourceConfiguration {
 
     @Bean
     @Primary
-    @ConfigurationProperties("spring.datasource.jpa")
+    @ConfigurationProperties(prefix = "spring.datasource.jpa")
     public DataSourceProperties dataSourceProperties() {
         return new DataSourceProperties();
     }

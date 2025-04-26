@@ -1,7 +1,10 @@
 package com.appcenter.wnt.domain.enums;
 
+import lombok.Getter;
+
 import java.time.LocalTime;
 
+@Getter
 public enum NailReservationTime {
     NINE_AM(LocalTime.of(9, 0)),
     TEN_AM(LocalTime.of(10, 0)),
@@ -18,9 +21,5 @@ public enum NailReservationTime {
 
     NailReservationTime(LocalTime time) {
         this.time = time;
-    }
-
-    public LocalTime getTime() {
-        return time;
     }
 }
