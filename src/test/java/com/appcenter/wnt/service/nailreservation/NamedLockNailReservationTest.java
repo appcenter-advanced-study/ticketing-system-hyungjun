@@ -4,12 +4,12 @@ import com.appcenter.wnt.domain.Store;
 import com.appcenter.wnt.domain.User;
 import com.appcenter.wnt.domain.enums.NailCategory;
 import com.appcenter.wnt.domain.enums.NailReservationTime;
-import com.appcenter.wnt.dto.request.NailReserveRequest;
+import com.appcenter.wnt.dto.request.NailReservationRequest;
 import com.appcenter.wnt.repository.NailReservationRepository;
 import com.appcenter.wnt.repository.StoreRepository;
 import com.appcenter.wnt.repository.UserRepository;
-import com.appcenter.wnt.service.strategy.nailreservation.NailReserveStrategyManager;
-import com.appcenter.wnt.service.type.LockType;
+import com.appcenter.wnt.service.strategy.nailreservation.NailReservationStrategyManager;
+import com.appcenter.wnt.service.strategy.type.LockType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class NamedLockNailReservationTest {
 
     @Autowired
-    private NailReserveStrategyManager nailReserveStrategyManager;
+    private NailReservationStrategyManager nailReserveStrategyManager;
 
     @Autowired
     private StoreRepository storeRepository;
@@ -82,7 +82,7 @@ public class NamedLockNailReservationTest {
         for (User user : users) {
             executorService.submit(() -> {
                 try {
-                    NailReserveRequest request = new NailReserveRequest(
+                    NailReservationRequest request = new NailReservationRequest(
                             user.getId(),
                             store.getId(),
                             category,
@@ -90,7 +90,7 @@ public class NamedLockNailReservationTest {
                             time
                     );
 
-                    nailReserveStrategyManager.reserveNail(lockType, request);
+                    nailReserveStrategyManager.reserve(lockType, request);
                 } catch (RuntimeException e) {
                     System.out.println("예약 실패: " + e.getMessage());
                 } catch (InterruptedException e) {

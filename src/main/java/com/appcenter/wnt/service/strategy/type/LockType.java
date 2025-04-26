@@ -1,4 +1,4 @@
-package com.appcenter.wnt.service.type;
+package com.appcenter.wnt.service.strategy.type;
 
 public enum LockType {
     NONE,

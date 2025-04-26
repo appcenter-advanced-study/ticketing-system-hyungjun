@@ -2,13 +2,12 @@ package com.appcenter.wnt.service.strategy.nailreservation;
 
 import com.appcenter.wnt.domain.Store;
 import com.appcenter.wnt.domain.User;
-import com.appcenter.wnt.dto.request.NailReserveRequest;
-import com.appcenter.wnt.dto.response.NailReserveResponse;
+import com.appcenter.wnt.dto.request.NailReservationRequest;
+import com.appcenter.wnt.dto.response.NailReservationResponse;
 import com.appcenter.wnt.repository.RedisLockRepository;
 import com.appcenter.wnt.repository.StoreRepository;
 import com.appcenter.wnt.repository.UserRepository;
-import com.appcenter.wnt.repository.namedlock.NamedLockRepository;
-import com.appcenter.wnt.service.processor.NailReserveCommandProcessor;
+import com.appcenter.wnt.service.processor.NailReservationCommandProcessor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -18,14 +17,14 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 @Qualifier("redis")
-public class RedisLockNailReserveStrategy implements NailReserveStrategy {
+public class RedisLockNailReservationStrategy implements NailReservationStrategy {
     private final StoreRepository storeRepository;
     private final UserRepository userRepository;
     private final RedisLockRepository redisLockRepository;
-    private final NailReserveCommandProcessor nailReserveCommandProcessor;
+    private final NailReservationCommandProcessor nailReserveCommandProcessor;
 
     @Override
-    public NailReserveResponse reserveNail(NailReserveRequest request) throws InterruptedException {
+    public NailReservationResponse reserve(NailReservationRequest request) throws InterruptedException {
         User user = userRepository.findById(request.userId()).orElseThrow(()-> new RuntimeException("유저가 존재하지 않습니다."));
         Store store = storeRepository.findById(request.storeId()).orElseThrow(()-> new RuntimeException("존재하지 않는 가게입니다."));
 
@@ -33,7 +32,7 @@ public class RedisLockNailReserveStrategy implements NailReserveStrategy {
         return tryReserve(user, store, request);
     }
 
-    private NailReserveResponse tryReserve(User user, Store store,NailReserveRequest request) throws InterruptedException {
+    private NailReservationResponse tryReserve(User user, Store store, NailReservationRequest request) throws InterruptedException {
         String key = store.getId() + "_" + request.reservationDate().toString() + "_" + request.reservationTime().toString();
         while(!redisLockRepository.lock(key)){
             log.info("락 획득 완료");
@@ -42,7 +41,7 @@ public class RedisLockNailReserveStrategy implements NailReserveStrategy {
         try {
             return nailReserveCommandProcessor.tryReserve(user,store,request);
         }finally {
-            redisLockRepository.unlock(key);
+            redisLockRepository.unLock(key);
         }
     }
 }

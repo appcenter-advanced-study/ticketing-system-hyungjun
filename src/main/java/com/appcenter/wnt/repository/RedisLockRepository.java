@@ -21,7 +21,7 @@ public class RedisLockRepository {
                 .setIfAbsent(generateKey(key), "lock", Duration.ofMillis(3000));
     }
 
-    public Boolean unlock(String key) {
+    public Boolean unLock(String key) {
         return redisTemplate.delete(generateKey(key));
     }
 

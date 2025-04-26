@@ -4,7 +4,7 @@ import com.appcenter.wnt.domain.NailReservation;
 import lombok.Builder;
 
 @Builder
-public record NailReserveResponse(
+public record NailReservationResponse(
         Long nailReservationId,
         Long storeId,
         Long userId,
@@ -12,8 +12,8 @@ public record NailReserveResponse(
         String description,
         long price
 ) {
-    public static NailReserveResponse from(NailReservation nailReservation) {
-        return NailReserveResponse.builder()
+    public static NailReservationResponse from(NailReservation nailReservation) {
+        return NailReservationResponse.builder()
                 .nailReservationId(nailReservation.getId())
                 .userId(nailReservation.getUser().getId())
                 .storeId(nailReservation.getStore().getId())

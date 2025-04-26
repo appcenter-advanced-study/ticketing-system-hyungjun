@@ -1,6 +1,6 @@
 package com.appcenter.wnt.dto.request;
 
-public record UserRequest(
+public record CreateUserRequest(
         String nickname
 ) {
 }

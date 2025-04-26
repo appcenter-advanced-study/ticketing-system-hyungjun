@@ -4,7 +4,7 @@ import com.appcenter.wnt.domain.Coupon;
 import com.appcenter.wnt.domain.CouponReservation;
 import com.appcenter.wnt.domain.CouponStock;
 import com.appcenter.wnt.domain.User;
-import com.appcenter.wnt.dto.response.CouponReserveDetailResponse;
+import com.appcenter.wnt.dto.response.CouponReservationDetailResponse;
 import com.appcenter.wnt.repository.CouponRepository;
 import com.appcenter.wnt.repository.CouponReservationRepository;
 import com.appcenter.wnt.repository.CouponStockRepository;
@@ -16,8 +16,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Qualifier("pessimistic")
-public class PessimisticLockCouponReserveStrategy implements CouponReserveStrategy {
+@Qualifier("none")
+public class NoLockCouponReservationStrategy implements CouponReservationStrategy {
+
     private final CouponStockRepository couponStockRepository;
     private final CouponRepository couponRepository;
     private final CouponReservationRepository reservationRepository;
@@ -25,17 +26,17 @@ public class PessimisticLockCouponReserveStrategy implements CouponReserveStrate
 
     @Override
     @Transactional
-    public CouponReserveDetailResponse reserveCoupon(Long userId, Long couponId) {
+    public CouponReservationDetailResponse reserve(Long userId, Long couponId) {
         User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("유저가 존재하지 않습니다."));
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(()-> new RuntimeException("쿠폰이 존재하지 않습니다."));
-        // 비관적 락 적용
-        CouponStock couponStock = couponStockRepository.findByIdWithPessimisticLock(coupon.getId()).orElseThrow(()-> new RuntimeException("쿠폰 재고가 존재하지 않습니다."));
         reservationRepository.findByUserIdAndCouponId(userId,couponId).ifPresent(cr ->{
             throw new RuntimeException("이미 존재하는 쿠폰입니다.");
         });
+
+        CouponStock couponStock = couponStockRepository.findByCoupon(coupon).orElseThrow(()-> new RuntimeException("쿠폰 재고가 존재하지 않습니다."));
         couponStock.decreaseQuantity();
         CouponReservation couponReservation = reservationRepository.save(CouponReservation.of(user.getId(), coupon));
 
-        return CouponReserveDetailResponse.of(coupon.getId(),user.getId(), couponReservation.getId(), coupon.getType().name(), couponStock.getQuantity());
+        return CouponReservationDetailResponse.of(coupon.getId(),user.getId(), couponReservation.getId(), coupon.getType().name(), coupon.getType().getDescription(), couponStock.getQuantity());
     }
 }

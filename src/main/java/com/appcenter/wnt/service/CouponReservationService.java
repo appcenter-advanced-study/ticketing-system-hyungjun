@@ -5,8 +5,8 @@ import com.appcenter.wnt.domain.CouponReservation;
 import com.appcenter.wnt.domain.CouponStock;
 import com.appcenter.wnt.domain.User;
 import com.appcenter.wnt.domain.enums.CouponType;
-import com.appcenter.wnt.dto.response.CouponReserveDetailResponse;
-import com.appcenter.wnt.dto.response.CouponReserveResponse;
+import com.appcenter.wnt.dto.response.CouponReservationDetailResponse;
+import com.appcenter.wnt.dto.response.CouponReservationResponse;
 import com.appcenter.wnt.repository.CouponRepository;
 import com.appcenter.wnt.repository.CouponReservationRepository;
 import com.appcenter.wnt.repository.CouponStockRepository;
@@ -26,7 +26,7 @@ public class CouponReservationService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CouponReserveDetailResponse reserveCoupon(Long userId, Long couponId) {
+    public CouponReservationDetailResponse reserve(Long userId, Long couponId) {
         User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("유저가 존재하지 않습니다."));
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(()-> new RuntimeException("쿠폰이 존재하지 않습니다."));
         CouponStock couponStock = couponStockRepository.findByIdWithPessimisticLock(coupon.getId()).orElseThrow(()-> new RuntimeException("쿠폰 재고가 존재하지 않습니다."));
@@ -36,11 +36,11 @@ public class CouponReservationService {
         couponStock.decreaseQuantity();
         CouponReservation couponReservation = reservationRepository.save(CouponReservation.of(user.getId(), coupon));
 
-        return CouponReserveDetailResponse.of(coupon.getId(),user.getId(), couponReservation.getId(), coupon.getType().name(), couponStock.getQuantity());
+        return CouponReservationDetailResponse.of(coupon.getId(),user.getId(), couponReservation.getId(), coupon.getType().name(),coupon.getType().getDescription(), couponStock.getQuantity());
     }
 
     @Transactional
-    public void cancelCouponReservation(Long userId, Long couponId) {
+    public void cancelReservation(Long userId, Long couponId) {
         User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("유저가 존재하지 않습니다."));
         Coupon coupon = couponRepository.findById(couponId).orElseThrow(()-> new RuntimeException("쿠폰이 존재하지 않습니다."));
         CouponStock couponStock = couponStockRepository.findByCoupon(coupon).orElseThrow(()-> new RuntimeException("쿠폰 재고가 존재하지 않습니다."));
@@ -51,13 +51,13 @@ public class CouponReservationService {
     }
 
     @Transactional
-    public List<CouponReserveResponse> getUserCouponReservations(Long userId) {
+    public List<CouponReservationResponse> getUserReservations(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(()-> new RuntimeException("유저가 존재하지 않습니다."));
         List<CouponReservation> couponReservations  = reservationRepository.findByUserId(user.getId());
 
         return couponReservations.stream().map(couponReservation -> {
             CouponType couponType = couponReservation.getCoupon().getType();
-            return CouponReserveResponse.of(
+            return CouponReservationResponse.of(
                     user.getId(),
                     couponReservation.getId(),
                     couponType.name(),

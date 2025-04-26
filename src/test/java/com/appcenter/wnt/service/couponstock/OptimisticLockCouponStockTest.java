@@ -8,8 +8,8 @@ import com.appcenter.wnt.repository.CouponRepository;
 import com.appcenter.wnt.repository.CouponReservationRepository;
 import com.appcenter.wnt.repository.CouponStockRepository;
 import com.appcenter.wnt.repository.UserRepository;
-import com.appcenter.wnt.service.strategy.couponstock.CouponReserveStrategyManager;
-import com.appcenter.wnt.service.type.LockType;
+import com.appcenter.wnt.service.strategy.couponstock.CouponReservationStrategyManager;
+import com.appcenter.wnt.service.strategy.type.LockType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,7 +28,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Slf4j
-public class OptimisticLockCouponReserveTest {
+public class OptimisticLockCouponStockTest {
     @Autowired
     private CouponRepository couponRepository;
 
@@ -36,7 +36,7 @@ public class OptimisticLockCouponReserveTest {
     private CouponReservationRepository reservationRepository;
 
     @Autowired
-    private CouponReserveStrategyManager couponReserveStrategyManager;
+    private CouponReservationStrategyManager couponReserveStrategyManager;
 
     @Autowired
     private CouponStockRepository couponStockRepository;
@@ -81,7 +81,7 @@ public class OptimisticLockCouponReserveTest {
         for (User user : users) {
             executorService.submit(() -> {
                 try {
-                    couponReserveStrategyManager.reserveCoupon(lockType, user.getId(), couponId);
+                    couponReserveStrategyManager.reserve(lockType, user.getId(), couponId);
                 } catch (Exception e) {
                     log.info("쿠폰 예매중 에러 발생!");
                 } finally {

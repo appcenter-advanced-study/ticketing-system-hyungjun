@@ -1,7 +1,7 @@
 package com.appcenter.wnt.service;
 
 import com.appcenter.wnt.domain.User;
-import com.appcenter.wnt.dto.request.UserRequest;
+import com.appcenter.wnt.dto.request.CreateUserRequest;
 import com.appcenter.wnt.dto.response.UserResponse;
 import com.appcenter.wnt.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +18,7 @@ public class UserService {
         return UserResponse.from(user);
     }
 
-    public UserResponse register(UserRequest userRequest) {
+    public UserResponse register(CreateUserRequest userRequest) {
         User user = User.of(userRequest.nickname());
         userRepository.save(user);
         return UserResponse.from(user);

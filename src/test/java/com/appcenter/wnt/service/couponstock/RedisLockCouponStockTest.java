@@ -4,12 +4,12 @@ import com.appcenter.wnt.domain.Coupon;
 import com.appcenter.wnt.domain.CouponStock;
 import com.appcenter.wnt.domain.User;
 import com.appcenter.wnt.domain.enums.CouponType;
-import com.appcenter.wnt.repository.CouponReservationRepository;
 import com.appcenter.wnt.repository.CouponRepository;
+import com.appcenter.wnt.repository.CouponReservationRepository;
 import com.appcenter.wnt.repository.CouponStockRepository;
 import com.appcenter.wnt.repository.UserRepository;
-import com.appcenter.wnt.service.strategy.couponstock.CouponReserveStrategyManager;
-import com.appcenter.wnt.service.type.LockType;
+import com.appcenter.wnt.service.strategy.couponstock.CouponReservationStrategyManager;
+import com.appcenter.wnt.service.strategy.type.LockType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,8 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 @Slf4j
-public class NoLockCouponReservationTest {
-
+public class RedisLockCouponStockTest {
     @Autowired
     private CouponRepository couponRepository;
 
@@ -38,7 +37,7 @@ public class NoLockCouponReservationTest {
     private CouponReservationRepository reservationRepository;
 
     @Autowired
-    private CouponReserveStrategyManager couponReserveStrategyManager;
+    private CouponReservationStrategyManager couponReserveStrategyManager;
 
     @Autowired
     private CouponStockRepository couponStockRepository;
@@ -69,21 +68,21 @@ public class NoLockCouponReservationTest {
     }
 
     /**
-     ** 쿠폰 예매 100건은 성공했지만 쿠폰 재고 필드가 꼬인 상황 -> 정합성 깨짐
+     ** 쿠폰 예매 100건을 레디스 락으로 동시성 문제 해결
      **/
     @Test
-    public void 요청1000건_중_100개만_허용_테스트() throws InterruptedException {
+    public void 요청100건_중_재고_테스트() throws InterruptedException {
         int threadCount = 100;
-        ExecutorService executorService = Executors.newFixedThreadPool(threadCount);
+        ExecutorService executorService = Executors.newFixedThreadPool(32);
         CountDownLatch latch = new CountDownLatch(threadCount);
 
         Long couponId = coupon.getId();
 
-        LockType lockType = LockType.NONE;
+        LockType lockType = LockType.REDIS;
         for (User user : users) {
             executorService.submit(() -> {
                 try {
-                    couponReserveStrategyManager.reserveCoupon(lockType, user.getId(), couponId);
+                    couponReserveStrategyManager.reserve(lockType, user.getId(), couponId);
                 } catch (Exception e) {
                     log.info("쿠폰 예매중 에러 발생!");
                 } finally {
@@ -94,9 +93,8 @@ public class NoLockCouponReservationTest {
         latch.await();
 
         CouponStock couponStock = couponStockRepository.findByCoupon(coupon).orElseThrow(()-> new RuntimeException("쿠폰 재고 존재 x"));
-        log.info("=== 남은 재고 수: {} ===" ,couponStock.getQuantity());
 
         // 모든 예매가 수행 되었으면 티켓 재고는 0개가 남아야 한다.
-        assertEquals(0L, couponStock.getQuantity(), "티켓 재고는 0이 되어야한다.");
+        assertEquals(0L, couponStock.getQuantity());
     }
 }

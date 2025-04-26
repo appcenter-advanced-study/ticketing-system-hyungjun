@@ -1,7 +1,8 @@
-package com.appcenter.wnt.repository.namedlock;
+package com.appcenter.wnt.service.executor;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -11,8 +12,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.function.Supplier;
 
-@Repository
-public class NamedLockRepositoryImpl implements NamedLockRepository {
+@Component
+public class NamedLockExecutor{
 
     private static final String GET_LOCK = "SELECT GET_LOCK(?, ?)";
     private static final String RELEASE_LOCK = "SELECT RELEASE_LOCK(?)";
@@ -20,11 +21,10 @@ public class NamedLockRepositoryImpl implements NamedLockRepository {
 
     private final DataSource dataSource;
 
-    public NamedLockRepositoryImpl(@Qualifier("namedLockDataSource") DataSource dataSource) {
+    public NamedLockExecutor(@Qualifier("namedLockDataSource") DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
-    @Override
     public <T> T executeWithLock(String key, Supplier<T> supplier) {
         try (Connection connection = DataSourceUtils.getConnection(dataSource)) {
             try {

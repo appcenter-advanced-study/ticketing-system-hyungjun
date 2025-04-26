@@ -3,14 +3,14 @@ package com.appcenter.wnt.dto.response;
 import lombok.Builder;
 
 @Builder
-public record CouponReserveResponse(
+public record CouponReservationResponse(
         Long userId,
         Long couponReserveId,
         String couponType,
         String couponDescription
 ) {
-    public static CouponReserveResponse of(Long userId, Long couponReserveId, String couponType, String couponDescription) {
-        return CouponReserveResponse.builder()
+    public static CouponReservationResponse of(Long userId, Long couponReserveId, String couponType, String couponDescription) {
+        return CouponReservationResponse.builder()
                 .userId(userId)
                 .couponReserveId(couponReserveId)
                 .couponType(couponType)

@@ -1,6 +1,6 @@
 package com.appcenter.wnt.controller;
 
-import com.appcenter.wnt.dto.request.UserRequest;
+import com.appcenter.wnt.dto.request.CreateUserRequest;
 import com.appcenter.wnt.dto.response.UserResponse;
 import com.appcenter.wnt.service.UserService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<UserResponse> register(@RequestBody UserRequest userRequest) {
+    public ResponseEntity<UserResponse> register(@RequestBody CreateUserRequest userRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.register(userRequest));
     }
 

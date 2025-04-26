@@ -5,7 +5,7 @@ import com.appcenter.wnt.domain.enums.NailReservationTime;
 
 import java.time.LocalDate;
 
-public record NailReserveRequest(
+public record NailReservationRequest(
         Long userId,
         Long storeId,
         NailCategory nailCategory,

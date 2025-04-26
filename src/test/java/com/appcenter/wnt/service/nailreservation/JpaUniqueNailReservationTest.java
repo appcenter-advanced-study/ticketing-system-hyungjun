@@ -4,12 +4,12 @@ import com.appcenter.wnt.domain.Store;
 import com.appcenter.wnt.domain.User;
 import com.appcenter.wnt.domain.enums.NailCategory;
 import com.appcenter.wnt.domain.enums.NailReservationTime;
-import com.appcenter.wnt.dto.request.NailReserveRequest;
+import com.appcenter.wnt.dto.request.NailReservationRequest;
 import com.appcenter.wnt.repository.NailReservationRepository;
 import com.appcenter.wnt.repository.StoreRepository;
 import com.appcenter.wnt.repository.UserRepository;
-import com.appcenter.wnt.service.strategy.nailreservation.NailReserveStrategyManager;
-import com.appcenter.wnt.service.type.LockType;
+import com.appcenter.wnt.service.strategy.nailreservation.NailReservationStrategyManager;
+import com.appcenter.wnt.service.strategy.type.LockType;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class JpaUniqueNailReservationTest {
 
     @Autowired
-    private NailReserveStrategyManager nailReserveStrategyManager;
+    private NailReservationStrategyManager nailReserveStrategyManager;
 
     @Autowired
     private StoreRepository storeRepository;
@@ -74,17 +74,17 @@ class JpaUniqueNailReservationTest {
     public void 네일예약_중복요청_예외_테스트() throws InterruptedException {
         LockType lockType = LockType.NONE;
         // 첫 번째 사용자 예약 (성공)
-        NailReserveRequest firstRequest = new NailReserveRequest(
+        NailReservationRequest firstRequest = new NailReservationRequest(
                 users.get(0).getId(),
                 store.getId(),
                 category,
                 date,
                 time
         );
-        nailReserveStrategyManager.reserveNail(lockType, firstRequest); // 성공
+        nailReserveStrategyManager.reserve(lockType, firstRequest); // 성공
 
         // 두 번째 사용자 예약 (실패 예상)
-        NailReserveRequest secondRequest = new NailReserveRequest(
+        NailReservationRequest secondRequest = new NailReservationRequest(
                 users.get(1).getId(),
                 store.getId(),
                 category,
@@ -93,7 +93,7 @@ class JpaUniqueNailReservationTest {
         );
 
         RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            nailReserveStrategyManager.reserveNail(lockType, secondRequest);
+            nailReserveStrategyManager.reserve(lockType, secondRequest);
         });
 
         assertEquals("이미 예약이 존재합니다.", exception.getMessage());
@@ -112,14 +112,14 @@ class JpaUniqueNailReservationTest {
         for (User user : users) {
             executorService.submit(() -> {
                 try {
-                    NailReserveRequest request = new NailReserveRequest(
+                    NailReservationRequest request = new NailReservationRequest(
                             user.getId(),
                             store.getId(),
                             category,
                             date,
                             time
                     );
-                    nailReserveStrategyManager.reserveNail(lockType, request);
+                    nailReserveStrategyManager.reserve(lockType, request);
                 } catch (RuntimeException e) {
                     System.out.println("예약 실패: " + e.getMessage());
                 } catch (InterruptedException e) {
