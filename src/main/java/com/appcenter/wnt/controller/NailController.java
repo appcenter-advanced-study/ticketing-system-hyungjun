@@ -31,7 +31,7 @@ public class NailController {
         return ResponseEntity.status(HttpStatus.OK).body("예매 취소 성공");
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/users/{userId}")
     public ResponseEntity<List<NailReserveResponse>> getNailReservations(@PathVariable("userId") Long userId) {
         List<NailReserveResponse> response = nailReservationService.getNailReservations(userId);
         return ResponseEntity.ok(response);

@@ -15,23 +15,24 @@ import java.util.List;
 @Tag(name = "CouponReservation",description = "CouponReservation API")
 @RequestMapping("/api/coupon-reservations")
 @RequiredArgsConstructor
-public class CouponReserveController {
+public class CouponReservationController {
     private final CouponReservationService couponReservationService;
 
-    @PostMapping("/{userId}/user/{couponId}/reservation")
-    public ResponseEntity<CouponReserveDetailResponse> reserveCoupon(@PathVariable("couponId") Long couponId, @PathVariable("userId") Long userId) {
+    @PostMapping("/users/{userId}/coupons/{couponId}/reservations")
+    public ResponseEntity<CouponReserveDetailResponse> reserveCoupon(@PathVariable("userId") Long userId,
+                                                                     @PathVariable("couponId") Long couponId) {
         CouponReserveDetailResponse response = couponReservationService.reserveCoupon(userId, couponId);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @DeleteMapping("/{userId}/user/{couponId}/cancel")
-    public ResponseEntity<String> cancelCouponReservation(@PathVariable("couponId") Long couponId, @PathVariable("userId") Long userId) {
+    @DeleteMapping("/users/{userId}/coupons/{couponId}/cancel")
+    public ResponseEntity<String> cancelCouponReservation(@PathVariable("userId") Long userId, @PathVariable("couponId") Long couponId) {
         couponReservationService.cancelCouponReservation(userId, couponId);
         return ResponseEntity.status(HttpStatus.OK).body("쿠폰 버리기 성공");
     }
 
-    @GetMapping("/user/reservations")
-    public ResponseEntity<List<CouponReserveResponse>> getUserReservations(@RequestParam Long userId) {
+    @GetMapping("/users/{userId}/reservations")
+    public ResponseEntity<List<CouponReserveResponse>> getUserReservations(@PathVariable("userId") Long userId) {
         List<CouponReserveResponse> response = couponReservationService.getUserCouponReservations(userId);
         return ResponseEntity.ok(response);
     }
