@@ -33,7 +33,7 @@ public class KafkaConsumer {
             Long userId = request.userId();
             Long couponId = request.couponId();
 
-            log.info("@@@@@ 컨슈머가 받은 데이터 userId : {}, couponId : {}@@@@@", userId, couponId);
+            log.info("컨슈머가 받은 데이터 userId : {}, couponId : {}", userId, couponId);
             reservationRepository.findByUserIdAndCouponId(userId,couponId).ifPresent(cr ->{
                 throw new RuntimeException("이미 존재하는 쿠폰입니다.");
             });
