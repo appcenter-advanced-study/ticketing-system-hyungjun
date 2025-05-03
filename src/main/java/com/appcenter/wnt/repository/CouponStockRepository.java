@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface CouponStockRepository extends JpaRepository<CouponStock, Long> {
     Optional<CouponStock> findByCoupon(Coupon coupon);
 
+    Optional<CouponStock> findByCouponId(Long couponId);
+
     // 비관적 락
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("select cs from CouponStock cs where cs.id = :couponId") // 누군가 이 row를 선점하고 있으면 다른 트랜잭션은 기다린다.
@@ -21,4 +23,5 @@ public interface CouponStockRepository extends JpaRepository<CouponStock, Long> 
     @Lock(LockModeType.OPTIMISTIC)
     @Query("select cs from CouponStock cs where cs.id = :couponId") // 내부적으로 UPDATE ... WHERE version = 1 쿼리 실행 
     Optional<CouponStock> findByIdWithOptimisticLock(Long couponId);
+
 }

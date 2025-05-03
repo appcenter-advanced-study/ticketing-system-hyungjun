@@ -23,8 +23,7 @@ public class CouponReservationStrategyManager {
                 LockType.PESSIMISTIC, pessimistic,
                 LockType.OPTIMISTIC, optimistic,
                 LockType.NAMED, named,
-                LockType.REDIS, redis
-        );
+                LockType.REDIS, redis);
     }
 
     public CouponReservationDetailResponse reserve(LockType lockType, Long userId, Long couponId) throws InterruptedException {

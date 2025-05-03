@@ -38,7 +38,7 @@ public class RedisLockCouponReservationStrategy implements CouponReservationStra
 
     private CouponReservationDetailResponse tryReserve(User user, Coupon coupon) throws InterruptedException {
         while(!redisLockRepository.lock(coupon.getId().toString())){
-            log.info("락 획득 완료1");
+            log.info("락 획득 완료");
             Thread.sleep(100);
         }
         try {
